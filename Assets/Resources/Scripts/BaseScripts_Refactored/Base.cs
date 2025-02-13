@@ -2,17 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(UnitSpawner), typeof(Rigidbody))]
+[RequireComponent(typeof(UnitSpawner), typeof(Rigidbody), typeof(Scaner))]
 public class Base : MonoBehaviour
 {
 	[SerializeField] private Transform _instantiatingPoint;
 	[SerializeField] private Transform _collectionPoint;
 
+	private Scaner _scaner;
 	private UnitSpawner _unitSpawner;
 
-	private List<GameResource> _findingResources;
 	private List<Unit> _units;
-	private Collider[] _collidersBuffer;
 
 	private List<GameResource> _freeResources;
 	private List<GameResource> _bookedResources;
@@ -31,10 +30,9 @@ public class Base : MonoBehaviour
 	private void Awake()
 	{
 		_unitSpawner = gameObject.GetComponent<UnitSpawner>();
+		_scaner = gameObject.GetComponent<Scaner>();
 
 		_units = new List<Unit>();
-		_findingResources = new List<GameResource>();
-		_collidersBuffer = new Collider[50];
 
 		_freeResources = new List<GameResource>();
 		_bookedResources = new List<GameResource>();
@@ -51,7 +49,7 @@ public class Base : MonoBehaviour
 	private void Update()
 	{
 		BuyUnit();
-		ScanArea();
+		SendUnitForCollectResource();
 	}
 
 	public void CollectResource(GameResource resource)
@@ -65,21 +63,10 @@ public class Base : MonoBehaviour
 		GoldChanged?.Invoke(_goldCount);
 	}
 
-	private void ScanArea()
-	{
-		_findingResources.Clear();
-		int count = Physics.OverlapSphereNonAlloc(Vector3.zero, 20f, _collidersBuffer);
-
-		for (int i = 0; i < count; i++)
-			if (_collidersBuffer[i].gameObject.TryGetComponent<GameResource>(out GameResource resource))
-				_findingResources.Add(resource);
-
-		SortFindingResources();
-		SendUnitForCollectResource();
-	}
-
 	private void SendUnitForCollectResource()
 	{
+		SortFindingResources(_scaner.ScanArea());
+
 		if (_freeResources.Count > 0)
 		{
 			for (int i = 0; i < _freeResources.Count; i++)
@@ -104,20 +91,20 @@ public class Base : MonoBehaviour
 		}
 	}
 
-	private void SortFindingResources()
+	private void SortFindingResources(List<GameResource> findingResources)
 	{
 		bool isResourceBooked = false;
 
-		if (_findingResources.Count == 0)
+		if (findingResources.Count == 0)
 			return;
 
 		_freeResources.Clear();
 
-		for (int i = 0; i < _findingResources.Count; i++)
+		for (int i = 0; i < findingResources.Count; i++)
 		{
 			for (int j = 0; j < _bookedResources.Count; j++)
 			{
-				if (_findingResources[i] == _bookedResources[j])
+				if (findingResources[i] == _bookedResources[j])
 				{
 					isResourceBooked = true;
 					break;
@@ -130,7 +117,7 @@ public class Base : MonoBehaviour
 
 			if (!isResourceBooked)
 			{
-				_freeResources.Add(_findingResources[i]);
+				_freeResources.Add(findingResources[i]);
 			}
 		}
 	}

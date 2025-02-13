@@ -6,10 +6,12 @@ public class UnitMover : MonoBehaviour
 
 	public void Move(Transform target)
 	{
+		float goalReachingDistance = 0.1f;
+
 		Vector3 currentPosition = transform.position;
 		Vector3 targetPosition = new Vector3(target.position.x, currentPosition.y, target.position.z);
 
-		if (Vector3.Distance(currentPosition, targetPosition) > 0.1f)
+		if ((targetPosition - currentPosition).sqrMagnitude > goalReachingDistance)
 		{
 			transform.position = Vector3.MoveTowards(currentPosition, targetPosition, _speed * Time.deltaTime);
 
