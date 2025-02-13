@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 13682830}
   - component: {fileID: 13682835}
   - component: {fileID: 13682834}
+  - component: {fileID: 13682836}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -259,8 +260,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d77196a6b0918f4c96a27c12f88651f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 4858403130421574967, guid: 69a97f33bc05dad41883025842366390, type: 3}
+  Prefab: {fileID: 4858403130421574967, guid: 69a97f33bc05dad41883025842366390, type: 3}
   _base: {fileID: 13682834}
+--- !u!54 &13682836
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13682829}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &154971250
 GameObject:
   m_ObjectHideFlags: 0
@@ -926,8 +954,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16ccd843553c7264983e362902ff3f56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: -2562000601302473630, guid: 0c1b6991da3217e46a5f0827f51fb8cc, type: 3}
-  _resourcesCount: 3
+  Prefab: {fileID: -2562000601302473630, guid: 0c1b6991da3217e46a5f0827f51fb8cc, type: 3}
+  _resourcesCount: 5
   _maxPointForSpawn: {fileID: 1270470486}
   _minPointForSpawn: {fileID: 949416830}
 --- !u!4 &951896347

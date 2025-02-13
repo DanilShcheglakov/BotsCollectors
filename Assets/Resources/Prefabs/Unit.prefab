@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b63fcbc199556d044ac83f39a97e612d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _count: 5
+  _count: 1
 --- !u!1 &4066495569824470697
 GameObject:
   m_ObjectHideFlags: 0
@@ -172,6 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _backPack: {fileID: 604047309491010526}
+  _base: {fileID: 0}
 --- !u!136 &6007284868424596991
 CapsuleCollider:
   m_ObjectHideFlags: 0

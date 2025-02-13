@@ -3,5 +3,5 @@ using UnityEngine;
 
 public interface ISpawnable<T> where T : MonoBehaviour
 {
-	public event Action<T> WorkEnding;
+	public event Action<T> WorkEnded;
 }

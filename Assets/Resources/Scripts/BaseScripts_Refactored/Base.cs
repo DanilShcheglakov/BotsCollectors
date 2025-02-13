@@ -14,6 +14,9 @@ public class Base : MonoBehaviour
 	private List<Unit> _units;
 	private Collider[] _collidersBuffer;
 
+	private List<GameResource> _freeResources;
+	private List<GameResource> _bookedResources;
+
 	private int _goldCount = 0;
 	private int _starUnitsCount = 3;
 	private int _unitPrice = 3;
@@ -22,8 +25,8 @@ public class Base : MonoBehaviour
 	public Transform CollectionPoint => _collectionPoint;
 	public int StartUnitCount => _starUnitsCount;
 
-	public event Action<int> GoldChanges;
-	public event Action<int> UnitsChanges;
+	public event Action<int> GoldChanged;
+	public event Action<int> UnitsChanged;
 
 	private void Awake()
 	{
@@ -32,6 +35,9 @@ public class Base : MonoBehaviour
 		_units = new List<Unit>();
 		_findingResources = new List<GameResource>();
 		_collidersBuffer = new Collider[50];
+
+		_freeResources = new List<GameResource>();
+		_bookedResources = new List<GameResource>();
 	}
 
 	private void Start()
@@ -39,7 +45,7 @@ public class Base : MonoBehaviour
 		for (int i = 0; i < _starUnitsCount; i++)
 			_units.Add(_unitSpawner.GetPrefab());
 
-		UnitsChanges?.Invoke(_units.Count);
+		UnitsChanged?.Invoke(_units.Count);
 	}
 
 	private void Update()
@@ -53,9 +59,10 @@ public class Base : MonoBehaviour
 		if (resource is Gold)
 			_goldCount++;
 
+		_bookedResources.Remove(resource);
 		resource.Delete();
 
-		GoldChanges?.Invoke(_goldCount);
+		GoldChanged?.Invoke(_goldCount);
 	}
 
 	private void ScanArea()
@@ -64,24 +71,28 @@ public class Base : MonoBehaviour
 		int count = Physics.OverlapSphereNonAlloc(Vector3.zero, 20f, _collidersBuffer);
 
 		for (int i = 0; i < count; i++)
-			if (_collidersBuffer[i].gameObject.TryGetComponent<GameResource>(out GameResource resource) && !resource.IsBooked)
+			if (_collidersBuffer[i].gameObject.TryGetComponent<GameResource>(out GameResource resource))
 				_findingResources.Add(resource);
 
+		SortFindingResources();
 		SendUnitForCollectResource();
 	}
 
 	private void SendUnitForCollectResource()
 	{
-		if (_findingResources.Count > 0)
+		if (_freeResources.Count > 0)
 		{
-			for (int i = 0; i < _findingResources.Count; i++)
+			for (int i = 0; i < _freeResources.Count; i++)
 			{
 				foreach (var unit in _units)
 				{
 					if (!unit.IsBusy)
 					{
-						unit.SetNewTarget(_findingResources[i].transform, true);
-						_findingResources[i].Booking();
+						unit.SetNewTarget(_freeResources[i].transform, true);
+
+						_bookedResources.Add(_freeResources[i]);
+						_freeResources.RemoveAt(i);
+
 						return;
 					}
 				}
@@ -93,22 +104,45 @@ public class Base : MonoBehaviour
 		}
 	}
 
-	private void CollectUnitsAtTheBase()
+	private void SortFindingResources()
 	{
-		foreach (var unit in _units)
+		bool isResourceBooked = false;
+
+		if (_findingResources.Count == 0)
+			return;
+
+		_freeResources.Clear();
+
+		for (int i = 0; i < _findingResources.Count; i++)
 		{
-			if (!unit.IsBusy)
+			for (int j = 0; j < _bookedResources.Count; j++)
 			{
-				if (unit.IsEmptyBackPack)
+				if (_findingResources[i] == _bookedResources[j])
 				{
-					unit.SetNewTarget(CollectionPoint, false);
+					isResourceBooked = true;
+					break;
 				}
 				else
 				{
-					unit.SetNewTarget(transform, false);
+					isResourceBooked = false;
 				}
 			}
+
+			if (!isResourceBooked)
+			{
+				_freeResources.Add(_findingResources[i]);
+			}
 		}
+	}
+
+	private void CollectUnitsAtTheBase()
+	{
+		foreach (var unit in _units)
+			if (!unit.IsBusy)
+				if (unit.IsEmptyBackPack)
+					unit.SetNewTarget(CollectionPoint, false);
+				else
+					unit.SetNewTarget(transform, false);
 	}
 
 	private void BuyUnit()
@@ -118,8 +152,8 @@ public class Base : MonoBehaviour
 			_units.Add(_unitSpawner.GetPrefab());
 			_goldCount -= _unitPrice;
 
-			UnitsChanges?.Invoke(_units.Count);
-			GoldChanges?.Invoke(_goldCount);
+			UnitsChanged?.Invoke(_units.Count);
+			GoldChanged?.Invoke(_goldCount);
 		}
 	}
 }

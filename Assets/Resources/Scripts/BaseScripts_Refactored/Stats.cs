@@ -4,10 +4,10 @@ using System;
 
 public class Stats : MonoBehaviour
 {
-	[SerializeField] Base _base;
+	[SerializeField] private Base _base;
 
-	[SerializeField] TextMeshProUGUI _goldCount;
-	[SerializeField] TextMeshProUGUI _unitsCount;
+	[SerializeField] private TextMeshProUGUI _goldCount;
+	[SerializeField] private TextMeshProUGUI _unitsCount;
 
 	private void Start()
 	{
@@ -17,14 +17,14 @@ public class Stats : MonoBehaviour
 
 	private void OnEnable()
 	{
-		_base.GoldChanges += ChangeGoldCount;
-		_base.UnitsChanges += ChangeUnitCount;
+		_base.GoldChanged += ChangeGoldCount;
+		_base.UnitsChanged += ChangeUnitCount;
 	}
 
 	private void OnDisable()
 	{
-		_base.GoldChanges -= ChangeGoldCount;
-		_base.UnitsChanges -= ChangeUnitCount;
+		_base.GoldChanged -= ChangeGoldCount;
+		_base.UnitsChanged -= ChangeUnitCount;
 	}
 
 	private void ChangeGoldCount(int currentCount)

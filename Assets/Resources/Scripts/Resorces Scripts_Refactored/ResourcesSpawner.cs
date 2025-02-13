@@ -49,7 +49,7 @@ public class ResourcesSpawner : Spawner<GameResource>
 	public override void SetDefaultSettings(GameResource prefab)
 	{
 		prefab.SetDefault();
-		prefab.transform.position = GetTransform();
+		prefab.transform.position = GetPosition();
 	}
 
 	public IEnumerator StartSpawnResources()
@@ -63,7 +63,7 @@ public class ResourcesSpawner : Spawner<GameResource>
 		}
 	}
 
-	private Vector3 GetTransform()
+	private Vector3 GetPosition()
 	{
 		Vector3 spawnPoint = GetRandomVector();
 

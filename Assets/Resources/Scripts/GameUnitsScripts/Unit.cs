@@ -14,7 +14,7 @@ public class Unit : MonoBehaviour, ISpawnable<Unit>
 	public bool IsBusy { get; private set; }
 	public bool IsEmptyBackPack => _backPack.IsThereResources == false;
 
-	public event Action<Unit> WorkEnding;
+	public event Action<Unit> WorkEnded;
 
 	private void Awake()
 	{
@@ -41,29 +41,24 @@ public class Unit : MonoBehaviour, ISpawnable<Unit>
 		_mover.Move(_target);
 	}
 
-	private void PickUpResource(GameResource resource)
-	{
-		_backPack.AddResource(resource);
-		IsBusy = false;
-	}
-
 	public void SetDefaultSettings(Base unitsBase, Transform defaultTransform)
 	{
 		_base = unitsBase;
 		_target = unitsBase.CollectionPoint;
 		transform.position = defaultTransform.position;
+		IsBusy = false;
 	}
 
 	public void SetNewTarget(Transform newTarget, bool isItResource)
 	{
-		if (isItResource && _backPack.IsFilled)
-		{
-			ComeBackToBase();
-			return;
-		}
-
 		_target = newTarget;
 		IsBusy = isItResource;
+	}
+
+	private void PickUpResource(GameResource resource)
+	{
+		_backPack.AddResource(resource);
+		IsBusy = !IsEmptyBackPack;
 	}
 
 	private void HandleCollisionEnter(Collider collision)
@@ -101,6 +96,6 @@ public class Unit : MonoBehaviour, ISpawnable<Unit>
 
 	public void Delete()
 	{
-		WorkEnding?.Invoke(this);
+		WorkEnded?.Invoke(this);
 	}
 }
