@@ -118,7 +118,7 @@ public class Base : MonoBehaviour
 				}
 			}
 
-			if (!isResourceBooked)
+			if (isResourceBooked == false)
 			{
 				_freeResources.Add(findingResources[i]);
 			}
@@ -128,7 +128,7 @@ public class Base : MonoBehaviour
 	private void CollectUnitsAtTheBase()
 	{
 		foreach (var unit in _units)
-			if (!unit.IsBusy)
+			if (unit.IsBusy == false)
 				if (unit.IsEmptyBackPack)
 					unit.SetNewTarget(CollectionPoint, false);
 				else
