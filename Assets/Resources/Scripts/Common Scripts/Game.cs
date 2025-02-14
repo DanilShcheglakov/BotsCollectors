@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-	[SerializeField] ResourcesSpawner _resourcesSpawner;
+	[SerializeField] private ResourcesSpawner _resourcesSpawner;
 
 	private void Start()
 	{

@@ -1,8 +1,7 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(UnitMover), typeof(CollisionHandler))]
-public class Unit : MonoBehaviour, ISpawnable<Unit>
+public class Unit : MonoBehaviour
 {
 	[SerializeField] private BackPack _backPack;
 
@@ -14,12 +13,11 @@ public class Unit : MonoBehaviour, ISpawnable<Unit>
 	public bool IsBusy { get; private set; }
 	public bool IsEmptyBackPack => _backPack.IsThereResources == false;
 
-	public event Action<Unit> WorkEnded;
-
 	private void Awake()
 	{
 		_mover = GetComponent<UnitMover>();
 		_collisionHandler = GetComponent<CollisionHandler>();
+
 	}
 
 	private void OnEnable()
@@ -92,10 +90,5 @@ public class Unit : MonoBehaviour, ISpawnable<Unit>
 	private void SetFree()
 	{
 		IsBusy = false;
-	}
-
-	public void Delete()
-	{
-		WorkEnded?.Invoke(this);
 	}
 }

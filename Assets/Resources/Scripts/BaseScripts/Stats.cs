@@ -5,6 +5,7 @@ using System;
 public class Stats : MonoBehaviour
 {
 	[SerializeField] private Base _base;
+	[SerializeField] private Coffers _coffers;
 
 	[SerializeField] private TextMeshProUGUI _goldCount;
 	[SerializeField] private TextMeshProUGUI _unitsCount;
@@ -17,19 +18,19 @@ public class Stats : MonoBehaviour
 
 	private void OnEnable()
 	{
-		_base.GoldChanged += ChangeGoldCount;
+		_coffers.CountChangeng += ChangeGoldCount;
 		_base.UnitsChanged += ChangeUnitCount;
 	}
 
 	private void OnDisable()
 	{
-		_base.GoldChanged -= ChangeGoldCount;
+		_coffers.CountChangeng -= ChangeGoldCount;
 		_base.UnitsChanged -= ChangeUnitCount;
 	}
 
-	private void ChangeGoldCount(int currentCount)
+	private void ChangeGoldCount()
 	{
-		ShowCurrentInfo(currentCount, _goldCount);
+		ShowCurrentInfo(_coffers.GoldCount, _goldCount);
 	}
 
 	private void ChangeUnitCount(int currentCount)

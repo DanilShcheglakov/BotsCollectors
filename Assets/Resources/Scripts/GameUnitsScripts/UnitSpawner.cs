@@ -1,11 +1,17 @@
 using UnityEngine;
 
-public class UnitSpawner : Spawner<Unit>
+public class UnitSpawner : MonoBehaviour
 {
 	[SerializeField] private Base _base;
+	[SerializeField] protected Unit _unitPrefab;
 
-	public override void SetDefaultSettings(Unit prefab)
+	public Unit GetUnit()
 	{
-		prefab.SetDefaultSettings(_base, _base.InstantiatingPoint);
+		Unit newUnit;
+
+		newUnit = (Instantiate(_unitPrefab));
+		newUnit.SetDefaultSettings(_base, _base.InstantiatingPoint);
+
+		return newUnit;
 	}
 }

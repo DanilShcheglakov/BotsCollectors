@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(UnitSpawner), typeof(Rigidbody), typeof(Scaner))]
+[RequireComponent(typeof(Coffers))]
 public class Base : MonoBehaviour
 {
 	[SerializeField] private Transform _instantiatingPoint;
@@ -10,62 +11,64 @@ public class Base : MonoBehaviour
 
 	private Scaner _scaner;
 	private UnitSpawner _unitSpawner;
+	private Coffers _coffers;
 
 	private List<Unit> _units;
-
 	private List<GameResource> _freeResources;
 	private List<GameResource> _bookedResources;
 
-	private int _goldCount = 0;
 	private int _starUnitsCount = 3;
 	private int _unitPrice = 3;
+
+	public event Action<int> UnitsChanged;
 
 	public Transform InstantiatingPoint => _instantiatingPoint;
 	public Transform CollectionPoint => _collectionPoint;
 	public int StartUnitCount => _starUnitsCount;
 
-	public event Action<int> GoldChanged;
-	public event Action<int> UnitsChanged;
-
 	private void Awake()
 	{
-		_unitSpawner = gameObject.GetComponent<UnitSpawner>();
-		_scaner = gameObject.GetComponent<Scaner>();
+		_unitSpawner = GetComponent<UnitSpawner>();
+		_coffers = GetComponent<Coffers>();
+		_scaner = GetComponent<Scaner>();
 
 		_units = new List<Unit>();
-
 		_freeResources = new List<GameResource>();
 		_bookedResources = new List<GameResource>();
+	}
+
+	private void OnEnable()
+	{
+		_scaner.AreaScanned += SendUnitForCollectResource;
+		_coffers.CountChangeng += BuyUnit;
+	}
+
+	private void OnDisable()
+	{
+		_scaner.AreaScanned -= SendUnitForCollectResource;
+		_coffers.CountChangeng -= BuyUnit;
 	}
 
 	private void Start()
 	{
 		for (int i = 0; i < _starUnitsCount; i++)
-			_units.Add(_unitSpawner.GetPrefab());
+			_units.Add(_unitSpawner.GetUnit());
 
 		UnitsChanged?.Invoke(_units.Count);
-	}
-
-	private void Update()
-	{
-		BuyUnit();
-		SendUnitForCollectResource();
 	}
 
 	public void CollectResource(GameResource resource)
 	{
 		if (resource is Gold)
-			_goldCount++;
+			_coffers.AddCoin();
 
 		_bookedResources.Remove(resource);
 		resource.Delete();
-
-		GoldChanged?.Invoke(_goldCount);
 	}
 
-	private void SendUnitForCollectResource()
+	private void SendUnitForCollectResource(List<GameResource> findingResources)
 	{
-		SortFindingResources(_scaner.ScanArea());
+		SortFindingResources(findingResources);
 
 		if (_freeResources.Count > 0)
 		{
@@ -134,13 +137,11 @@ public class Base : MonoBehaviour
 
 	private void BuyUnit()
 	{
-		if (_goldCount >= _unitPrice)
+		if (_coffers.TrySpendCoin(_unitPrice))
 		{
-			_units.Add(_unitSpawner.GetPrefab());
-			_goldCount -= _unitPrice;
+			_units.Add(_unitSpawner.GetUnit());
 
 			UnitsChanged?.Invoke(_units.Count);
-			GoldChanged?.Invoke(_goldCount);
 		}
 	}
 }

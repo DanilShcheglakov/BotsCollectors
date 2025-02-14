@@ -138,6 +138,8 @@ GameObject:
   - component: {fileID: 13682835}
   - component: {fileID: 13682834}
   - component: {fileID: 13682836}
+  - component: {fileID: 13682838}
+  - component: {fileID: 13682837}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -260,8 +262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d77196a6b0918f4c96a27c12f88651f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 4858403130421574967, guid: 69a97f33bc05dad41883025842366390, type: 3}
   _base: {fileID: 13682834}
+  _unitPrefab: {fileID: 4858403130421574967, guid: 69a97f33bc05dad41883025842366390, type: 3}
 --- !u!54 &13682836
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -289,6 +291,30 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &13682837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13682829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350d21b795c3d3a40abcbbeca677b243, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &13682838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13682829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a6ab4cea0963274f92e2241d41df220, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &154971250
 GameObject:
   m_ObjectHideFlags: 0
@@ -1761,6 +1787,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _base: {fileID: 13682834}
+  _coffers: {fileID: 13682837}
   _goldCount: {fileID: 965396469}
   _unitsCount: {fileID: 165236724}
 --- !u!1 &1717771901
