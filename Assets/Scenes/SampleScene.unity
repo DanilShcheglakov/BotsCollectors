@@ -980,7 +980,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16ccd843553c7264983e362902ff3f56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: -2562000601302473630, guid: 0c1b6991da3217e46a5f0827f51fb8cc, type: 3}
+  _prefab: {fileID: -2562000601302473630, guid: 0c1b6991da3217e46a5f0827f51fb8cc, type: 3}
   _resourcesCount: 5
   _maxPointForSpawn: {fileID: 1270470486}
   _minPointForSpawn: {fileID: 949416830}

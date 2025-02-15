@@ -17,7 +17,6 @@ public class Unit : MonoBehaviour
 	{
 		_mover = GetComponent<UnitMover>();
 		_collisionHandler = GetComponent<CollisionHandler>();
-
 	}
 
 	private void OnEnable()

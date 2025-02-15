@@ -3,10 +3,10 @@ using UnityEngine;
 
 public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ISpawnable<T>
 {
-	[SerializeField] private T Prefab;
+	[SerializeField] private T _prefab;
 
-	private List<T> AllObjects;
-	private Queue<T> PulledObjects;
+	private List<T> _allObjects;
+	private Queue<T> _pulledObjects;
 
 	public int ActiveObjects { get; private set; }
 
@@ -14,20 +14,20 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ISpawn
 	{
 		ActiveObjects = 0;
 
-		AllObjects = new List<T>();
-		PulledObjects = new Queue<T>();
+		_allObjects = new List<T>();
+		_pulledObjects = new Queue<T>();
 	}
 
 	public T GetPrefab()
 	{
 		T prefab;
 
-		if (PulledObjects.Count == 0)
+		if (_pulledObjects.Count == 0)
 		{
-			prefab = (Instantiate(Prefab));
+			prefab = (Instantiate(_prefab));
 			SetDefaultSettings(prefab);
 
-			AllObjects.Add(prefab);
+			_allObjects.Add(prefab);
 			ActiveObjects++;
 
 			prefab.WorkEnded += PutPrefab;
@@ -35,7 +35,7 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ISpawn
 			return prefab;
 		}
 
-		prefab = PulledObjects.Dequeue();
+		prefab = _pulledObjects.Dequeue();
 		prefab.WorkEnded += PutPrefab;
 
 		SetDefaultSettings(prefab);
@@ -46,7 +46,7 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ISpawn
 
 	public void PutPrefab(T prefab)
 	{
-		PulledObjects.Enqueue(prefab);
+		_pulledObjects.Enqueue(prefab);
 		ActiveObjects--;
 
 		prefab.WorkEnded -= PutPrefab;

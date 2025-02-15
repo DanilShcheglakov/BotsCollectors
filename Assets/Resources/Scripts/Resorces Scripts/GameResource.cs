@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public abstract class GameResource : MonoBehaviour, ISpawnable<GameResource>
 {
 	public event Action<GameResource> WorkEnded;

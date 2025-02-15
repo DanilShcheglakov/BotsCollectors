@@ -11,11 +11,11 @@ public class BackPack : MonoBehaviour
 
 	private float _resourceShift = 0.25f;
 
-	public bool IsThereResources => _resources.Count > 0;
-	public bool IsFilled => _resources.Count == _count;
-
 	public event Action Filled;
 	public event Action Devastated;
+
+	public bool IsThereResources => _resources.Count > 0;
+	public bool IsFilled => _resources.Count == _count;
 
 	private void Awake()
 	{
