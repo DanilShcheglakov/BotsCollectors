@@ -5,7 +5,7 @@ public class Coffers : MonoBehaviour
 {
 	private int _goldCount;
 
-	public event Action CountChangeng;
+	public event Action CountChanged;
 
 	public int GoldCount => _goldCount;
 
@@ -17,7 +17,7 @@ public class Coffers : MonoBehaviour
 	public void AddCoin()
 	{
 		_goldCount++;
-		CountChangeng?.Invoke();
+		CountChanged?.Invoke();
 	}
 
 	public bool TrySpendCoin(int value)
@@ -27,7 +27,8 @@ public class Coffers : MonoBehaviour
 		else
 			return false;
 
-		CountChangeng?.Invoke();
+		CountChanged?.Invoke();
+
 		return true;
 	}
 }

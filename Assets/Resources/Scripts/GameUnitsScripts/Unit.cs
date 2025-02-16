@@ -1,14 +1,20 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(UnitMover), typeof(CollisionHandler))]
 public class Unit : MonoBehaviour
 {
 	[SerializeField] private BackPack _backPack;
+	[SerializeField] private Base _basePrefab;
 
 	private Base _base;
 	private UnitMover _mover;
 	private CollisionHandler _collisionHandler;
 	private Transform _target;
+
+	private bool _isThisBuilder;
+
+	public event Action<Unit> Builded;
 
 	public bool IsBusy { get; private set; }
 	public bool IsEmptyBackPack => _backPack.IsThereResources == false;
@@ -46,10 +52,15 @@ public class Unit : MonoBehaviour
 		IsBusy = false;
 	}
 
-	public void SetNewTarget(Transform newTarget, bool isItResource)
+	public void SetTarget(Transform newTarget, bool isItResource)
 	{
 		_target = newTarget;
 		IsBusy = isItResource;
+	}
+
+	public void SetBuilder()
+	{
+		_isThisBuilder = true;
 	}
 
 	private void PickUpResource(GameResource resource)
@@ -69,6 +80,9 @@ public class Unit : MonoBehaviour
 		}
 		else if (collision.gameObject.TryGetComponent<Base>(out Base unitBase))
 		{
+			if (_backPack.IsFilled == false)
+				return;
+
 			if (unitBase == _base)
 			{
 				while (_backPack.IsThereResources)
@@ -76,18 +90,33 @@ public class Unit : MonoBehaviour
 					_base.CollectResource(_backPack.GiveItem());
 				}
 
-				SetNewTarget(_base.CollectionPoint, false);
+				SetTarget(_base.CollectionPoint, false);
 			}
+		}
+		else if (collision.gameObject.TryGetComponent<Flag>(out Flag flag) && _isThisBuilder)
+		{
+			Vector3 buildPosition = new Vector3(flag.transform.position.x, _basePrefab.transform.position.y, flag.transform.position.z);
+
+			Builded?.Invoke(this);
+			SetNewBase(Instantiate(_basePrefab, buildPosition, Quaternion.identity, null));
 		}
 	}
 
 	private void ComeBackToBase()
 	{
-		SetNewTarget(_base.transform, true);
+		SetTarget(_base.transform, true);
 	}
 
 	private void SetFree()
 	{
 		IsBusy = false;
+		_isThisBuilder = false;
+	}
+
+	private void SetNewBase(Base newBase)
+	{
+		_base = newBase;
+		SetFree();
+		_base.AttachUnit(this);
 	}
 }

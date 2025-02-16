@@ -2,58 +2,75 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(UnitSpawner), typeof(Rigidbody), typeof(Scaner))]
+[RequireComponent(typeof(UnitSpawner), typeof(Rigidbody), typeof(Scanner))]
 [RequireComponent(typeof(Coffers))]
 public class Base : MonoBehaviour
 {
+	private static List<GameResource> FreeResources;
+	private static List<GameResource> BookedResources;
+	private static int CountOfBases = 0;
+
 	[SerializeField] private Transform _instantiatingPoint;
 	[SerializeField] private Transform _collectionPoint;
+	[SerializeField] private Flag _flag;
+	[SerializeField] private int _startUnitsCount = 3;
 
-	private Scaner _scaner;
+	private Scanner _scaner;
 	private UnitSpawner _unitSpawner;
 	private Coffers _coffers;
-
 	private List<Unit> _units;
-	private List<GameResource> _freeResources;
-	private List<GameResource> _bookedResources;
 
-	private int _starUnitsCount = 3;
+	private int _numberOfBase;
 	private int _unitPrice = 3;
+	private int _BasePrice = 5;
+
+	private bool _isUnitSendingToBuild;
 
 	public event Action<int> UnitsChanged;
 
 	public Transform InstantiatingPoint => _instantiatingPoint;
 	public Transform CollectionPoint => _collectionPoint;
-	public int StartUnitCount => _starUnitsCount;
+	public int StartUnitCount => _startUnitsCount;
 
 	private void Awake()
 	{
 		_unitSpawner = GetComponent<UnitSpawner>();
 		_coffers = GetComponent<Coffers>();
-		_scaner = GetComponent<Scaner>();
+		_scaner = GetComponent<Scanner>();
 
 		_units = new List<Unit>();
-		_freeResources = new List<GameResource>();
-		_bookedResources = new List<GameResource>();
+		FreeResources = new List<GameResource>();
+		BookedResources = new List<GameResource>();
+
+		_flag.gameObject.SetActive(false);
+
+		_numberOfBase = CountOfBases;
+		CountOfBases++;
 	}
 
 	private void OnEnable()
 	{
 		_scaner.AreaScanned += SendUnitForCollectResource;
-		_coffers.CountChangeng += BuyUnit;
+		_coffers.CountChanged += BuyUnit;
 	}
 
 	private void OnDisable()
 	{
 		_scaner.AreaScanned -= SendUnitForCollectResource;
-		_coffers.CountChangeng -= BuyUnit;
+		_coffers.CountChanged -= BuyUnit;
 	}
 
 	private void Start()
 	{
-		for (int i = 0; i < _starUnitsCount; i++)
-			_units.Add(_unitSpawner.GetUnit());
+		for (int i = 0; i < _startUnitsCount; i++)
+			AttachUnit(_unitSpawner.GetUnit());
 
+		UnitsChanged?.Invoke(_units.Count);
+	}
+
+	public void AttachUnit(Unit unit)
+	{
+		_units.Add(unit);
 		UnitsChanged?.Invoke(_units.Count);
 	}
 
@@ -62,30 +79,34 @@ public class Base : MonoBehaviour
 		if (resource is Gold)
 			_coffers.AddCoin();
 
-		_bookedResources.Remove(resource);
+		BookedResources.Remove(resource);
 		resource.Delete();
+	}
+
+	public void SetFlag(Vector3 positionForFlag)
+	{
+		if (_units.Count < 2)
+			return;
+
+		_flag.gameObject.SetActive(true);
+		_flag.transform.position = positionForFlag;
 	}
 
 	private void SendUnitForCollectResource(List<GameResource> findingResources)
 	{
 		SortFindingResources(findingResources);
 
-		if (_freeResources.Count > 0)
+		if (FreeResources.Count > _numberOfBase)
 		{
-			for (int i = 0; i < _freeResources.Count; i++)
+			if (TrySetTargetForUnit(FreeResources[_numberOfBase].transform))
 			{
-				foreach (var unit in _units)
-				{
-					if (!unit.IsBusy)
-					{
-						unit.SetNewTarget(_freeResources[i].transform, true);
-
-						_bookedResources.Add(_freeResources[i]);
-						_freeResources.RemoveAt(i);
-
-						return;
-					}
-				}
+				BookedResources.Add(FreeResources[_numberOfBase]);
+				FreeResources.RemoveAt(_numberOfBase);
+				return;
+			}
+			else
+			{
+				return;
 			}
 		}
 		else
@@ -94,20 +115,50 @@ public class Base : MonoBehaviour
 		}
 	}
 
+	private bool TrySetTargetForUnit(Transform target)
+	{
+		bool isSendUnitForBuild = false;
+
+		if (_flag.isActiveAndEnabled && _isUnitSendingToBuild == false && _coffers.TrySpendCoin(_BasePrice))
+		{
+			target = _flag.transform;
+			isSendUnitForBuild = true;
+		}
+
+		foreach (var unit in _units)
+		{
+			if (!unit.IsBusy)
+			{
+				unit.SetTarget(target, true);
+
+				if (isSendUnitForBuild)
+				{
+					unit.SetBuilder();
+					unit.Builded += UntieUnit;
+					_isUnitSendingToBuild = true;
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private void SortFindingResources(List<GameResource> findingResources)
 	{
-		bool isResourceBooked = false;
-
 		if (findingResources.Count == 0)
 			return;
 
-		_freeResources.Clear();
+		bool isResourceBooked = false;
+
+		FreeResources.Clear();
 
 		for (int i = 0; i < findingResources.Count; i++)
 		{
-			for (int j = 0; j < _bookedResources.Count; j++)
+			for (int j = 0; j < BookedResources.Count; j++)
 			{
-				if (findingResources[i] == _bookedResources[j])
+				if (findingResources[i] == BookedResources[j])
 				{
 					isResourceBooked = true;
 					break;
@@ -120,9 +171,20 @@ public class Base : MonoBehaviour
 
 			if (isResourceBooked == false)
 			{
-				_freeResources.Add(findingResources[i]);
+				FreeResources.Add(findingResources[i]);
 			}
 		}
+	}
+
+	private void UntieUnit(Unit unit)
+	{
+		_flag.gameObject.SetActive(false);
+
+		unit.Builded -= UntieUnit;
+		_units.Remove(unit);
+
+		_isUnitSendingToBuild = false;
+		UnitsChanged?.Invoke(_units.Count);
 	}
 
 	private void CollectUnitsAtTheBase()
@@ -130,13 +192,18 @@ public class Base : MonoBehaviour
 		foreach (var unit in _units)
 			if (unit.IsBusy == false)
 				if (unit.IsEmptyBackPack)
-					unit.SetNewTarget(CollectionPoint, false);
+					unit.SetTarget(CollectionPoint, false);
 				else
-					unit.SetNewTarget(transform, false);
+					unit.SetTarget(transform, false);
 	}
 
 	private void BuyUnit()
 	{
+		if (_flag.isActiveAndEnabled)
+		{
+			return;
+		}
+
 		if (_coffers.TrySpendCoin(_unitPrice))
 		{
 			_units.Add(_unitSpawner.GetUnit());

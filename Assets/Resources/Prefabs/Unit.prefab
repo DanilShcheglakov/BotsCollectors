@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _backPack: {fileID: 604047309491010526}
-  _base: {fileID: 0}
+  _basePrefab: {fileID: 7043132736912231441, guid: 6f15c5b28876cca4a8a431c5717d1ba6, type: 3}
 --- !u!136 &6007284868424596991
 CapsuleCollider:
   m_ObjectHideFlags: 0

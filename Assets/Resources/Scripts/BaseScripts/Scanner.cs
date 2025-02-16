@@ -3,11 +3,11 @@ using System.Collections;
 using UnityEngine;
 using System;
 
-public class Scaner : MonoBehaviour
+public class Scanner : MonoBehaviour
 {
 	private Collider[] _collidersBuffer;
 	private float _scanRadius = 20f;
-	private float _scanDelay = 1;
+	private float _scanDelay = 1f;
 	private WaitForSeconds _delay;
 
 	public event Action<List<GameResource>> AreaScanned;
@@ -41,6 +41,7 @@ public class Scaner : MonoBehaviour
 		while (enabled)
 		{
 			AreaScanned?.Invoke(GetResourcesList());
+
 			yield return _delay;
 		}
 	}
